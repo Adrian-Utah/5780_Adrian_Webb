@@ -1,5 +1,5 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
+#include <main.h>
+#include <stm32f0xx_hal.h>
 
 void SystemClock_Config(void);
 
@@ -13,10 +13,17 @@ int main(void)
   HAL_Init();
   /* Configure the system clock */
   SystemClock_Config();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  GPIO_InitTypeDef initStr = {GPIO_PIN_8 | GPIO_PIN_9,
+  GPIO_MODE_OUTPUT_PP,
+  GPIO_SPEED_FREQ_LOW,
+  GPIO_NOPULL};
 
   while (1)
   {
- 
+    HAL _Delay(200); // Delay 200ms 
+    // Toggle the output state of both PC8 and PC9
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;
 }
