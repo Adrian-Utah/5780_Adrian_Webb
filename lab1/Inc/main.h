@@ -1,12 +1,15 @@
 #ifndef __MAIN_H
 #define __MAIN_H
+#include <stm32f0xx_hal.h>
+#include <stm32f072xb.h>
 
-#include "stm32f072xb.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-AL_RCC_GPIOC_CLK_Enable ;
+void AL_RCC_GPIOC_CLK_Enable() ;
+
+void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init) ;
 
 void Error_Handler(void);
 

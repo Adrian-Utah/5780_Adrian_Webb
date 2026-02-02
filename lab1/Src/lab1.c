@@ -1,5 +1,6 @@
 #include <main.h>
 #include <stm32f0xx_hal.h>
+#include <stm32f072xb.h>
 #include <assert.h>
 
 void SystemClock_Config(void);
@@ -20,7 +21,7 @@ HAL_GPIO_Init(GPIOC, &initStr);
 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
 */
 GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
-HAL_GPIO_Init(GPIOC, &initStr);
+My_HAL_GPIO_Init(GPIOC,&initStr);
 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   while (1)
   {
