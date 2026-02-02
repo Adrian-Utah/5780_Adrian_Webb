@@ -25,7 +25,7 @@ HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   {
     HAL_Delay(200);
     //HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9);
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9);
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
   }
   return -1;
 }
