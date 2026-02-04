@@ -1,5 +1,6 @@
 
 #include <main.h>
+#include <stdint.h>
 #include <stm32f0xx_hal.h>
 #include <stm32f072xb.h>
 #include <assert.h>
@@ -14,8 +15,7 @@ int main(void)
 {
 HAL_Init();
 SystemClock_Config();
-
-__HAL_RCC_GPIOC_CLK_ENABLE();
+HAL_RCC_GPIOC_CLK_Enable();
 
 
 //GPIO_InitTypeDef initStr = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
@@ -26,12 +26,60 @@ GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_S
 //HAL_GPIO_Init(GPIOC, &initStr);
 My_HAL_GPIO_Init(GPIOC,&initStr);
 //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
-My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+//My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+
+  uint32_t d = 0;
+  GPIO_PinState s;
+  uint32_t g = 0;
+  uint32_t t = 0;
+  uint32_t f = 1;
   while (1)
   {
-    HAL_Delay(200);
-    //HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
-    My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+    if(t){
+      for(int i =0; i<40 ;i++){
+        HAL_Delay(200);
+        if(f){
+        My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+        f = 0;
+        }
+        //HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+      }
+      t=0;
+    }
+
+    //s = My_HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0);
+    s = My_HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+    d = (d<<1);
+    if(s){
+      d |= 0x01;
+    }
+    if(d == 0xFFFFFFFF){
+      g = !g;
+      d=0;
+    }
+    if(d==0x0){
+
+    }
+    if(d == 0x7FFFFFFF){
+      g=1;
+    }
+
+
+
+    if(g){
+      HAL_Delay(200);
+      if(f){
+        My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+        f = 0;
+      }
+        //HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+    
+  }
+
+
+    
   }
   return -1;
 }
