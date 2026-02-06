@@ -13,9 +13,9 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-HAL_Init();
-SystemClock_Config();
-HAL_RCC_GPIOC_CLK_Enable();
+//HAL_Init();
+//SystemClock_Config();
+//HAL_RCC_GPIOC_CLK_Enable();
 
 
 //GPIO_InitTypeDef initStr = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
@@ -33,6 +33,7 @@ My_HAL_GPIO_Init(GPIOC,&initStr);
   uint32_t g = 0;
   uint32_t t = 0;
   uint32_t f = 1;
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   while (1)
   {
     if(t){
@@ -55,7 +56,8 @@ My_HAL_GPIO_Init(GPIOC,&initStr);
       d |= 0x01;
     }
     if(d == 0xFFFFFFFF){
-      g = !g;
+      My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
+      //g = !g;
       d=0;
     }
     if(d==0x0){
@@ -66,7 +68,7 @@ My_HAL_GPIO_Init(GPIOC,&initStr);
     }
 
 
-
+    /*
     if(g){
       HAL_Delay(200);
       if(f){
@@ -77,6 +79,7 @@ My_HAL_GPIO_Init(GPIOC,&initStr);
         My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
     
   }
+        */
 
 
     
