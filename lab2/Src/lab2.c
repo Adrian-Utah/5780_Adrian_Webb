@@ -1,6 +1,6 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
-
+#include <main.h>
+#include <stm32f0xx_hal.h>
+#include <hal_gpio.h>
 void SystemClock_Config(void);
 
 /**
@@ -13,12 +13,41 @@ int main(void)
   HAL_Init();
   /* Configure the system clock */
   SystemClock_Config();
+  HAL_RCC_GPIOC_CLK_Enable();
+  GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
+  My_HAL_GPIO_Init(GPIOC,&initStr);
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+  My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+  if(EXTI -> RTSR == 0x0 && SYSCFG->EXTICR[0] == 0x0){
+    MY_HAL_inEn();
+    if(EXTI -> RTSR == 0x1 && SYSCFG->EXTICR[0] == 0x1){
+      while (1)
+      {
+        HAL_Delay(600);
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6);
+      }
+    }
+    else{
 
-  while (1)
-  {
- 
+    }
   }
   return -1;
+}
+
+
+
+
+void EXTI0_1_IRQHandler(){
+  My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+  My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+  for(int i = 0; i<1500000;i++){
+  }
+  My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+  My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+  EXTI->PR = EXTI_PR_PR0;
 }
 
 /**

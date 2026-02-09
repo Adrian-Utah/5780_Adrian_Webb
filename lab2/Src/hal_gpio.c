@@ -70,7 +70,7 @@ void My_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState 
         GPIOx->BSRR = (uint32_t)GPIO_Pin;
     } else {
         GPIOx->BSRR = (uint32_t)GPIO_Pin << 16U;
-}
+    }
 }
 
 
@@ -85,5 +85,16 @@ void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 void HAL_RCC_GPIOC_CLK_Enable(){
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
+}
+
+void MY_HAL_inEn(){
+    
+    EXTI->IMR |= GPIO_PIN_0;
+    EXTI -> RTSR |= GPIO_PIN_0;
+    SYSCFG->EXTICR[0] = 0x0;
+    NVIC_SetPriority(SysTick_IRQn,2);
+    NVIC_EnableIRQ(EXTI0_1_IRQn);
+    NVIC_SetPriority(EXTI0_1_IRQn,3);
 }
