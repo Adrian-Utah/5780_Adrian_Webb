@@ -9,13 +9,19 @@ void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
     GPIOx->MODER |= (1 << 18); 
     GPIOx->MODER &= ~(1<<17);
     GPIOx->MODER |= (1 << 16);
-    GPIOx->MODER &= ~(1<<15);
-    GPIOx->MODER |= (1 << 14); 
-    GPIOx->MODER &= ~(1<<13);
-    GPIOx->MODER |= (1 << 12);
-    
+    //GPIOx->MODER &= ~(1<<15);
+    //GPIOx->MODER |= (1 << 14); 
+    //GPIOx->MODER &= ~(1<<13);
+    //GPIOx->MODER |= (1 << 12);
+    GPIOC->MODER &= ~(GPIO_MODER_MODER6 | GPIO_MODER_MODER7);
+    GPIOC->MODER |= (GPIO_MODER_MODER6_1 | GPIO_MODER_MODER7_1);
+    GPIOC->AFR[0] &= ~(0xF << (6 * 4));
+    GPIOC->AFR[0] &= ~(0xF << (7 * 4));
+
     GPIOA->MODER &= ~(1<<0);
     GPIOA->MODER &= ~(1<<1);
+
+
 
     GPIOx->OTYPER &= ~(1<<6);
     GPIOx->OTYPER &= ~(1<<7);
@@ -85,7 +91,39 @@ void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 void HAL_RCC_GPIOC_CLK_Enable(){
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+
+    
+    TIM2->PSC = 39;
+    TIM2->ARR = 50000;
+    TIM3->PSC = 9;
+    TIM3->ARR = 1000;
+    TIM2->DIER |= TIM_DIER_UIE;
+    //TIM3->DIER |= TIM_DIER_UIE;
+
+
+    TIM3->CCMR1 &= ~(TIM_CCMR1_CC1S | TIM_CCMR1_CC2S);
+    TIM3->CCMR1 |= (0x7 << TIM_CCMR1_OC1M_Pos);
+    TIM3->CCMR1 |= (0x6 << TIM_CCMR1_OC2M_Pos);
+    TIM3->CCMR1 |= (TIM_CCMR1_OC1PE | TIM_CCMR1_OC2PE);
+    TIM3->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC2E);
+    GPIOC->MODER &= ~(GPIO_MODER_MODER6 | GPIO_MODER_MODER7);
+    GPIOC->MODER |= (GPIO_MODER_MODER6_1 | GPIO_MODER_MODER7_1);
+    TIM3->CCR1 = 250;
+    TIM3->CCR2 = 250;
+
+    
+
+
+    TIM3->CR1 |= TIM_CR1_CEN;
+
+
+    NVIC_EnableIRQ(TIM2_IRQn);
+    TIM2->CR1 |= TIM_CR1_CEN;
+
 
 }
 

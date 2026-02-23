@@ -1,7 +1,13 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
+#include <main.h>
+#include <stm32f0xx_hal.h>
+#include <hal_gpio.h>
 
 void SystemClock_Config(void);
+void helper1(void);
+volatile uint32_t b1 = 0;
+volatile uint32_t b2 = 0;
+volatile uint32_t d1 = 1;
+volatile uint32_t d2 = 1;
 
 /**
   * @brief  The application entry point.
@@ -11,14 +17,54 @@ int main(void)
 {
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+  
+  HAL_RCC_GPIOC_CLK_Enable();
   /* Configure the system clock */
   SystemClock_Config();
-
+  GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
+  My_HAL_GPIO_Init(GPIOC,&initStr);
+  
+  //My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+  //My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+  b1 = TIM3->CCR1;
+  b2 = TIM3->CCR2;
   while (1)
   {
- 
+  //helper1();
+  //HAL_Delay(3);
+  //My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6);
+
   }
   return -1;
+}
+
+void TIM2_IRQHandler(void) {
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9);
+        TIM2->SR &= ~TIM_SR_UIF;
+}
+
+void helper1(void){
+  b1 += (d1);
+  b2 += (d2);
+if(b1>998){
+  b1=999;
+  d1=-1;
+}
+if(b2>998){
+  b2=999;
+  d2=-1;
+}
+if(b1<2){
+  b1=1;
+  d1=1;
+}
+if(b2<2){
+  b2=1;
+  d2=1;
+}
+TIM3->CCR1 = b1;
+TIM3->CCR2 = b2;
 }
 
 /**
@@ -29,6 +75,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -49,13 +96,11 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
 }
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
