@@ -1,5 +1,7 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
+#include <main.h>
+#include <stm32f0xx_hal.h>
+#include <support.h>
+
 
 void SystemClock_Config(void);
 
@@ -9,15 +11,108 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-  /* Configure the system clock */
-  SystemClock_Config();
 
-  while (1)
-  {
- 
-  }
+    int16_t x = 0;
+    int16_t y = 0;
+    int8_t xl = 0;
+    int8_t yl = 0;
+    int8_t xh = 0;
+    int8_t yh = 0;
+    int16_t thr = 1000;
+    HAL_Init();
+    SystemClock_Config();
+    
+    clockA();
+    GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
+    Init(GPIOC,&initStr); 
+
+    writep(GPIOC, GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_PIN_RESET);
+    HAL_Delay(100);
+    togglep(GPIOC, GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9);
+    togglep(GPIOC, GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9);
+
+    while (I2C2->ISR & I2C_ISR_BUSY);
+
+    //togglep(GPIOC, GPIO_PIN_6);
+    I2C2->CR2 = (0x69 << 1) | (2 << 16) | I2C_CR2_START; 
+    while (!(I2C2->ISR & I2C_ISR_TXIS));
+    I2C2->TXDR = 0x20;
+
+
+    while (!(I2C2->ISR & I2C_ISR_TXIS));
+    I2C2->TXDR = 0x0F; 
+
+    while (!(I2C2->ISR & I2C_ISR_TC));
+    I2C2->CR2 |= I2C_CR2_STOP;
+    //part2
+    /*
+    while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+
+    if (I2C2->ISR & I2C_ISR_NACKF) {
+        togglep(GPIOC, GPIO_PIN_6);
+        while(1);
+    }
+    I2C2->TXDR = 0x0F;
+
+    while (!(I2C2->ISR & I2C_ISR_TC));
+
+
+    I2C2->CR2 = (0x69 << 1) | (1 << 16) | I2C_CR2_RD_WRN | I2C_CR2_START;
+
+    while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
+
+    if (I2C2->ISR & I2C_ISR_NACKF) {
+        togglep(GPIOC, GPIO_PIN_6); 
+        while(1);
+    }
+
+    uint8_t who_am_i = I2C2->RXDR;
+
+
+    if (who_am_i == 0xD3) {
+        writep(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+    } else {
+        writep(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+    }
+
+    I2C2->CR2 |= I2C_CR2_STOP;
+    */
+    
+    while (1) {
+      I2C2->CR2 = (0x69 << 1) | (1 << 16) | I2C_CR2_START;
+      while (!(I2C2->ISR & I2C_ISR_TXIS));
+      I2C2->TXDR = 0x28 | 0x80; 
+      while (!(I2C2->ISR & I2C_ISR_TC));
+
+      I2C2->CR2 = (0x69 << 1) | (4 << 16) | I2C_CR2_RD_WRN | I2C_CR2_START;
+    
+      while (!(I2C2->ISR & I2C_ISR_RXNE));
+      xl = I2C2->RXDR;
+      while (!(I2C2->ISR & I2C_ISR_RXNE));
+      xh = I2C2->RXDR;
+      while (!(I2C2->ISR & I2C_ISR_RXNE));
+      yl = I2C2->RXDR;
+      while (!(I2C2->ISR & I2C_ISR_RXNE));
+      yh = I2C2->RXDR;
+
+      x= (xl+(xh<<8));
+      y= (yl+(yh<<8));
+      if(x>thr){
+        writep(GPIOC, GPIO_PIN_9, 1);
+        writep(GPIOC, GPIO_PIN_8, 0);
+      }else if(x<-thr){
+        writep(GPIOC, GPIO_PIN_8, 1);
+        writep(GPIOC, GPIO_PIN_9, 0);
+      }
+      if(y>thr){
+        writep(GPIOC, GPIO_PIN_6, 1);
+        writep(GPIOC, GPIO_PIN_7, 0);
+      }else if(y<-thr){
+        writep(GPIOC, GPIO_PIN_7, 1);
+        writep(GPIOC, GPIO_PIN_6, 0);
+      }
+      HAL_Delay(100);
+    }
   return -1;
 }
 
