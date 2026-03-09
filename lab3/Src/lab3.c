@@ -31,8 +31,8 @@ int main(void)
   b2 = TIM3->CCR2;
   while (1)
   {
-  //helper1();
-  //HAL_Delay(3);
+  helper1();
+  HAL_Delay(3);
   //My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6);
 
   }
