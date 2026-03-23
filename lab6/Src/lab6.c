@@ -1,22 +1,111 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
+#include <main.h>
+#include <stm32f0xx_hal.h>
+#include <support.h>
 
 void SystemClock_Config(void);
 
+const uint8_t sine_wave[32] = {
+    128, 152, 176, 198, 218, 234, 245, 253, 
+    255, 253, 245, 234, 218, 198, 176, 152, 
+    128, 103,  79,  57,  37,  21,  10,   2,   
+      0,   2,  10,  21,  37,  57,  79, 103
+};
 /**
   * @brief  The application entry point.
   * @retval int
   */
 int main(void)
 {
+  volatile char mode;
+  mode = 1;
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
   /* Configure the system clock */
   SystemClock_Config();
+  clockA();
+  GPIO_InitTypeDef initStr = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW,GPIO_NOPULL};
+  Init(GPIOC,&initStr);
+  writep(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+  writep(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+  writep(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+  writep(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
 
+  togglep(GPIOC, GPIO_PIN_6);
+  togglep(GPIOC, GPIO_PIN_7);
+  togglep(GPIOC, GPIO_PIN_8);
+  togglep(GPIOC, GPIO_PIN_9);
+
+
+  if(mode == 0){
+    GPIOA->MODER |= (3U << 2);
+    GPIOA->PUPDR &= ~(3U << 2);
+    ADC1->CFGR1 &= ~ADC_CFGR1_RES; 
+    ADC1->CFGR1 |= ADC_CFGR1_RES_1;
+
+    ADC1->CFGR1 |= ADC_CFGR1_CONT;
+    ADC1->CHSELR = ADC_CHSELR_CHSEL1;
+
+    if ((ADC1->CR & ADC_CR_ADEN) != 0) {
+          ADC1->CR |= ADC_CR_ADDIS;
+    }
+
+    while ((ADC1->CR & ADC_CR_ADEN) != 0);
+
+    ADC1->CR |= ADC_CR_ADCAL;
+    while ((ADC1->CR & ADC_CR_ADCAL) != 0);
+
+    ADC1->ISR |= ADC_ISR_ADRDY;
+    ADC1->CR |= ADC_CR_ADEN;
+    while ((ADC1->ISR & ADC_ISR_ADRDY) == 0);
+
+    ADC1->CR |= ADC_CR_ADSTART;
+  }
+  if(mode==1){
+    GPIOA->MODER |= (3U << 8);
+    GPIOA->PUPDR &= ~(3U << 8);
+    DAC->CR |= DAC_CR_TEN1;
+    DAC->CR |= DAC_CR_TSEL1;
+    DAC->CR |= DAC_CR_EN1;
+  }
+  uint8_t index = 0;
   while (1)
   {
- 
+
+    if(mode == 0){
+    uint8_t val = ADC1->DR;
+
+      if (val > 51) { 
+        writep(GPIOC, GPIO_PIN_6, 1);
+      }
+      else {
+        writep(GPIOC, GPIO_PIN_6, 0);
+      }
+      if (val > 102){ 
+        writep(GPIOC, GPIO_PIN_8, 1);
+      }
+      else{ 
+        writep(GPIOC, GPIO_PIN_8, 0);
+      }
+      if (val > 153) {
+        writep(GPIOC, GPIO_PIN_7, 1);
+      }  
+      else {
+        writep(GPIOC, GPIO_PIN_7, 0);
+      }
+      if (val > 204) {
+        writep(GPIOC, GPIO_PIN_9, 1);
+      }  
+      else{
+        writep(GPIOC, GPIO_PIN_9, 0);
+      }
+    }
+    if(mode == 1){
+      DAC->DHR8R1 = sine_wave[index];
+      DAC->SWTRIGR |= DAC_SWTRIGR_SWTRIG1;
+      index = (index + 1) % 32;
+      HAL_Delay(1);
+    }
+
   }
   return -1;
 }
