@@ -14,13 +14,20 @@
             "runEntry": "main",
             "imagesAndSymbols": [
                 {
-                    "imageFileName": "${command:cmake.launchTargetPath}"
+                    // Modified by Adrian
+                    // "imageFileName": "${command:cmake.launchTargetPath}",
+                    "imageFileName": "${workspaceRoot}/build/lab7/lab7.elf"
                 }
             ]
         },
         {
             "cwd": "${workspaceRoot}",
-            "executable": "${command:cmake.launchTargetPath}",
+            // Modified by Adrian
+            // "executable": "${command:cmake.launchTargetPath}",
+            "executable": "${workspaceRoot}/build/lab7/lab7.elf",
+            "gdbPath": "/home/akw/.local/share/stm32cube/bundles/gnu-gdb-for-stm32/14.3.1+st.2/bin/arm-none-eabi-gdb",
+            // "gdbPath": "",
+            "serverpath": "/usr/bin/openocd",
             "name": "RTT graphing",
             "request": "launch",
             "type": "cortex-debug",
